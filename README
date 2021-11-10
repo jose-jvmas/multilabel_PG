@@ -1,0 +1,26 @@
+# Description
+Prototype Generation for efficienct kNN classification
+
+# Roadmap
+IbPRIA 2022 (Submission deadline: January 9, 2022)
+
+# Methods implemented:
+- MRHC : Direct implementation of the work in [1]
+- MRSP3 : Novel adaptation of the RSP (version 3) PG method [2] to the multilabel space introduced in this work
+- MGMCA : Multilabel adaptation of the GMCA method [3]. TO BE DONE!
+- MPOC : Multilabel adaptation of the POC method [4]. TO BE DONE!
+
+
+# Requirements (Python)
+numpy
+sklearn
+scitkit-multilearn
+arff
+requests
+
+
+# Refs:
+[1] Ougiaroglou, S., Filippakis, P., & Evangelidis, G. (2021, September). Prototype Generation for Multi-label Nearest Neighbours Classification. In International Conference on Hybrid Artificial Intelligence Systems (pp. 172-183). Springer, Cham.
+[2] Sánchez, J. S. (2004). High training set size reduction by space partitioning and prototype abstraction. Pattern Recognition, 37(7), 1561-1564.
+[3] Mollineda, R. A., Ferri, F. J., & Vidal, E. (2002). A merge-based condensing strategy for multiple prototype classifiers. IEEE Transactions on Systems, Man, and Cybernetics, Part B (Cybernetics), 32(5), 662-668.
+[4] Raicharoen, T., & Lursinsap, C. (2005). A divide-and-conquer approach to the pairwise opposite class-nearest neighbor (POC-NN) algorithm. Pattern recognition letters, 26(10), 1554-1567.
