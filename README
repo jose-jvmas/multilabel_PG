@@ -1,14 +1,23 @@
 # Description
 Prototype Generation for efficienct kNN classification
 
-# Roadmap
-IbPRIA 2022 (Submission deadline: January 9, 2022)
+# Roadmap (depending on the results obtained)
+- IbPRIA 2022 (Submission deadline: January 9, 2022)
+- Pattern Recognition Letters (no deadline)
 
 # Methods implemented:
 - MRHC : Direct implementation of the work in [1]
+- MChen : Novel adaptation of the Chen method [] to the multilabel space introduced in this work
+----- TO BE OPTIMIZED: Precompute distances & save pairs of most distant prototypes
 - MRSP3 : Novel adaptation of the RSP (version 3) PG method [2] to the multilabel space introduced in this work
+
+
+# Possible methods to implement:
+- MRSP1 : Novel adaptation of the RSP (version 1) PG method [2]. TO BE DONE!
+- MRSP2 : Novel adaptation of the RSP (version 2) PG method [2]. TO BE DONE!
 - MGMCA : Multilabel adaptation of the GMCA method [3]. TO BE DONE!
 - MPOC : Multilabel adaptation of the POC method [4]. TO BE DONE!
+
 
 
 # Requirements (Python)

@@ -90,7 +90,7 @@ if __name__ == '__main__':
 	X_train, y_train, feature_names, label_names = load_dataset('scene', 'train')
 	X_test, y_test, feature_names, label_names = load_dataset('scene', 'test')
 
-	X_red, y_red = mrsp = MRPS3().reduceSet(X_train.toarray(), y_train.toarray())
+	X_red, y_red = MRPS3().reduceSet(X_train.toarray(), y_train.toarray())
 
 	cls_ori = BRkNNaClassifier(k=1).fit(X_train, y_train)
 	cls_red = BRkNNaClassifier(k=1).fit(X_red, y_red)
