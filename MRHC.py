@@ -10,6 +10,11 @@ from skmultilearn.adapt import BRkNNaClassifier
 
 class MRHC():
 
+	@staticmethod
+	def getFileName(*params):
+		return 'MRHC'
+
+
 	def checkClusterCommonLabel(self, in_elements):
 		# Checking whether there is a common label in ALL elements in the set:
 		common_label_vec = [len(np.nonzero(in_elements[:,it]==1)[0]) == len(in_elements) for it in range(in_elements.shape[1])]
@@ -18,7 +23,7 @@ class MRHC():
 
 
 
-	def reduceSet(self, X, y):
+	def reduceSet(self, X, y, params):
 		self.X_init = X
 		self.y_init = y
 
@@ -28,7 +33,7 @@ class MRHC():
 
 		while len(Q) > 0:
 			C = Q.pop() # Dequeing Q
-			if self.checkClusterCommonLabel(C[1]):
+			if self.checkClusterCommonLabel(C[1]) or C[0].shape[0] == 1:
 				r = np.median(C[0], axis = 0)
 
 				r_labelset = list()
@@ -49,7 +54,7 @@ class MRHC():
 				M = np.array(M) # label X n_features
 
 				resulting_labels = list(range(C[0].shape[0]))
-				if C[0].shape[0] >= M.shape[0]:
+				if C[0].shape[0] > M.shape[0]  and M.shape[0] > 1:
 					# Kmeans with M as initial centroids:
 					kmeans = KMeans(n_clusters = M.shape[0], init = M)
 					kmeans.fit(np.array(C[0] + 0.001, dtype = 'double'))
@@ -70,17 +75,12 @@ class MRHC():
 
 
 if __name__ == '__main__':
-	# from skmultilearn.dataset import available_data_sets
 
-	# set([x[0] for x in available_data_sets().keys()])
-	# set([x[1] for x in available_data_sets().keys()])
-
-
-	X_train, y_train, feature_names, label_names = load_dataset('scene', 'train')
-	X_test, y_test, feature_names, label_names = load_dataset('scene', 'test')
+	X_train, y_train, feature_names, label_names = load_dataset('yeast', 'train')
+	X_test, y_test, feature_names, label_names = load_dataset('yeast', 'test')
 
 	mrhc = MRHC()
-	X_red, y_red = mrhc.reduceSet(X_train.toarray(), y_train.toarray())
+	X_red, y_red = mrhc.reduceSet(X_train.toarray().copy(), y_train.toarray().copy())
 
 	cls_ori = BRkNNaClassifier(k=1).fit(X_train, y_train)
 	cls_red = BRkNNaClassifier(k=1).fit(X_red, y_red)

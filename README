@@ -8,7 +8,6 @@ Prototype Generation for efficienct kNN classification
 # Methods implemented:
 - MRHC : Direct implementation of the work in [1]
 - MChen : Novel adaptation of the Chen method [] to the multilabel space introduced in this work
------ TO BE OPTIMIZED: Precompute distances & save pairs of most distant prototypes
 - MRSP3 : Novel adaptation of the RSP (version 3) PG method [2] to the multilabel space introduced in this work
 
 

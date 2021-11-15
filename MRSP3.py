@@ -7,7 +7,25 @@ from skmultilearn.dataset import load_dataset
 from skmultilearn.adapt import BRkNNaClassifier
 
 
-class MRPS3():
+class MRSP3():
+
+	@staticmethod
+	def getFileName(*params):
+		return 'MRSP3'
+
+
+	# def getMostDistantPrototypes(self, in_set):
+
+	# 	max_dist = float('-inf')
+	# 	most_distant_duple = (0, 0)
+	# 	for it_row in range(in_set.shape[0]):
+	# 		for it_column in range(it_row, in_set.shape[0]):
+	# 			curr_dist = distance.euclidean(in_set[it_row], in_set[it_column])
+	# 			if curr_dist > max_dist:
+	# 				most_distant_duple = (it_row, it_column)
+	# 				max_dist = curr_dist
+	# 	return most_distant_duple[0], most_distant_duple[1]
+
 
 	def getMostDistantPrototypes(self, in_set):
 		duples = list(combinations(list(range(in_set.shape[0])), 2))
@@ -19,14 +37,16 @@ class MRPS3():
 			if curr_dist > max_dist:
 				most_distant_duple = single_duple
 				max_dist = curr_dist
-
-
 		return most_distant_duple[0], most_distant_duple[1]
 
 
 	def divideBIntoSubsets(self, B, p1, p2):
 		B1_indexes = np.where(np.array([distance.euclidean(B[u], B[p1]) <= distance.euclidean(B[u], B[p2]) for u in range(B.shape[0])]) == True)[0]
 		B2_indexes = np.array(sorted(list(set(range(B.shape[0])) - set(B1_indexes))))
+
+		if len(B2_indexes) == 0:
+			B2_indexes = np.array([B1_indexes[-1]])
+			B1_indexes = B1_indexes[:-1]
 
 		return B1_indexes, B2_indexes
 
@@ -52,7 +72,7 @@ class MRPS3():
 		return (r, r_labelset)
 
 
-	def reduceSet(self, X, y):
+	def reduceSet(self, X, y, params):
 		self.X_init = X
 		self.y_init = y
 
@@ -64,19 +84,24 @@ class MRPS3():
 			C = Q.pop() # Dequeing Q
 			p1, p2 = self.getMostDistantPrototypes(C[0])
 
-			B1_indexes, B2_indexes = self.divideBIntoSubsets(C[0], p1, p2)
+			if C[0].shape[0] > 2:
+				B1_indexes, B2_indexes = self.divideBIntoSubsets(C[0], p1, p2)
+			else:
+				B1_indexes = [p1]
+				B2_indexes = [p2]
 
-			B1 = (C[0][B1_indexes], C[1][B1_indexes])
-			B2 = (C[0][B2_indexes], C[1][B2_indexes])
+			B1 = (C[0][B1_indexes], C[1][B1_indexes]) if len(B1_indexes) > 0 else ()
+			B2 = (C[0][B2_indexes], C[1][B2_indexes]) if len(B2_indexes) > 0 else ()
 
 			for single_partition in [B1, B2]:
 
-				if self.checkClusterCommonLabel(single_partition[1]):
-					CS.append(self.generatePrototype(single_partition))
-				else:
-					# print("B1 Non-homogeneous")
-					Q.append(single_partition)
-			# print("hello")
+				if len(single_partition) > 0:
+					if self.checkClusterCommonLabel(single_partition[1]) or single_partition[1].shape[0] == 1:
+						CS.append(self.generatePrototype(single_partition))
+					else:
+						# print("B1 Non-homogeneous")
+						Q.append(single_partition)
+
 
 
 		self.X_out = np.array([CS[u][0] for u in range(len(CS))])
@@ -87,10 +112,10 @@ class MRPS3():
 
 
 if __name__ == '__main__':
-	X_train, y_train, feature_names, label_names = load_dataset('scene', 'train')
-	X_test, y_test, feature_names, label_names = load_dataset('scene', 'test')
+	X_train, y_train, feature_names, label_names = load_dataset('yeast', 'train')
+	X_test, y_test, feature_names, label_names = load_dataset('yeast', 'test')
 
-	X_red, y_red = MRPS3().reduceSet(X_train.toarray(), y_train.toarray())
+	X_red, y_red = MRSP3().reduceSet(X_train.toarray().copy(), y_train.toarray().copy())
 
 	cls_ori = BRkNNaClassifier(k=1).fit(X_train, y_train)
 	cls_red = BRkNNaClassifier(k=1).fit(X_red, y_red)
