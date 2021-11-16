@@ -6,10 +6,9 @@ from MRHC import MRHC
 from MChen import MChen
 from MRSP3 import MRSP3
 from sklearn.metrics import hamming_loss
-from skmultilearn.adapt import BRkNNaClassifier, BRkNNbClassifier
 from skmultilearn.dataset import load_dataset
 from skmultilearn.dataset import available_data_sets
-
+from skmultilearn.adapt import BRkNNaClassifier, BRkNNbClassifier, MLkNN
 
 results_path_root = 'Results'
 reduction_path = 'Reduction'
@@ -34,6 +33,7 @@ def experiments():
 	corpora = ['bibtex', 'birds', 'Corel5k', 'emotions', 'genbase', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'scene', 'yeast']
 
 
+
 	# Reduction algorithms:
 	red_algs = ['ALL', 'MRHC', 'MRSP3', 'MChen']
 
@@ -46,10 +46,11 @@ def experiments():
 	}
 
 	# Classifiers:
-	classifiers = ['BRkNNaClassifier', 'BRkNNbClassifier']
+	classifiers = ['MLkNN', 'BRkNNaClassifier', 'BRkNNbClassifier']
 
 	# Classifier params:
 	classifiers_param = {
+		'MLkNN' : [1, 3, 5, 7],
 		'BRkNNaClassifier' : [1, 3, 5, 7],
 		'BRkNNbClassifier' : [1, 3, 5, 7],
 	}
@@ -60,7 +61,6 @@ def experiments():
 
 	res_line = dict()
 	
-	# red_algs = red_algs[0:3]
 	for single_corpus in corpora:
 		# Dst folder:
 		corpus_dst_path = os.path.join(results_path_root, reduction_path,single_corpus)
@@ -98,12 +98,17 @@ def experiments():
 						
 						res_line['cls_params'] = [str(classifier_parameters)]
 
+						print("-"*80)
+						print(res_line)
+
 						cls = eval(single_classifier + '(k=' + str(classifier_parameters) + ')')
 						cls.fit(X_red, y_red)
 						y_pred = cls.predict(X_test)
 						
 						res_line['HL'] = [hamming_loss(y_test, y_pred)]
 						res_line['Size'] = [100*X_red.shape[0]/X_train.shape[0]]
+
+						print(res_line)
 
 						out_file = out_file.append(pd.DataFrame(res_line), ignore_index = False)
 
@@ -133,13 +138,14 @@ def getDataStats():
 
 if __name__ == '__main__':
 
-
-	# experiments()
-
+	"""Corpora stats"""
 	getDataStats()
 
+	"""Running experiments"""
+	experiments()
+
+
 	
-	print("hello")
 
 
 	# https://www.javatips.net/api/Keel3.0-master/src/keel/Algorithms/Instance_Generation/Chen/ChenGenerator.java
