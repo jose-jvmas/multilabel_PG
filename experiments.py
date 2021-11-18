@@ -7,7 +7,9 @@ from MChen import MChen
 from MRSP3 import MRSP3
 from sklearn.metrics import hamming_loss
 from skmultilearn.dataset import load_dataset
+from sklearn.neighbors import KNeighborsClassifier
 from skmultilearn.dataset import available_data_sets
+from skmultilearn.problem_transform import LabelPowerset
 from skmultilearn.adapt import BRkNNaClassifier, BRkNNbClassifier, MLkNN
 
 results_path_root = 'Results'
@@ -28,13 +30,13 @@ def experiments():
 	if not os.path.exists(os.path.join(results_path_root, reduction_path)):
 		os.makedirs(os.path.join(results_path_root, reduction_path))
 
-	# Selected corpora:
+	# Selected corpora:
 	corpora = ['bibtex', 'birds', 'Corel5k', 'emotions', 'enron', 'genbase', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'scene', 'yeast']
 	corpora = ['bibtex', 'birds', 'Corel5k', 'emotions', 'genbase', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'scene', 'yeast']
 
 
 
-	# Reduction algorithms:
+	# Reduction algorithms:
 	red_algs = ['ALL', 'MRHC', 'MRSP3', 'MChen']
 
 	# Params dict:
@@ -45,11 +47,12 @@ def experiments():
 		'MChen' : [10, 30, 50, 70, 90],
 	}
 
-	# Classifiers:
-	classifiers = ['MLkNN', 'BRkNNaClassifier', 'BRkNNbClassifier']
+	# Classifiers:
+	classifiers = ['LabelPowerset', 'MLkNN', 'BRkNNaClassifier', 'BRkNNbClassifier']
 
-	# Classifier params:
+	# Classifier params:
 	classifiers_param = {
+		'LabelPowerset' : [1, 3, 5, 7],
 		'MLkNN' : [1, 3, 5, 7],
 		'BRkNNaClassifier' : [1, 3, 5, 7],
 		'BRkNNbClassifier' : [1, 3, 5, 7],
@@ -62,13 +65,13 @@ def experiments():
 	res_line = dict()
 	
 	for single_corpus in corpora:
-		# Dst folder:
+		# Dst folder:
 		corpus_dst_path = os.path.join(results_path_root, reduction_path,single_corpus)
 		res_line['corpus'] = [single_corpus]
 		if not os.path.exists(corpus_dst_path):
 			os.makedirs(corpus_dst_path)
 		
-		# Loading corpus:
+		# Loading corpus:
 		X_train, y_train, X_test, y_test = loadCorpus(single_corpus)
 		for single_red in red_algs:
 			res_line['red_alg'] = [single_red]
@@ -101,7 +104,12 @@ def experiments():
 						print("-"*80)
 						print(res_line)
 
-						cls = eval(single_classifier + '(k=' + str(classifier_parameters) + ')')
+						if single_classifier == 'LabelPowerset':
+							kNN = KNeighborsClassifier(n_neighbors = classifier_parameters)
+							cls = LabelPowerset(classifier = kNN, require_dense=[False, False])
+						else:
+							cls = eval(single_classifier + '(k=' + str(classifier_parameters) + ')')
+						
 						cls.fit(X_red, y_red)
 						y_pred = cls.predict(X_test)
 						
@@ -139,7 +147,7 @@ def getDataStats():
 if __name__ == '__main__':
 
 	"""Corpora stats"""
-	getDataStats()
+	# getDataStats()
 
 	"""Running experiments"""
 	experiments()
@@ -148,4 +156,4 @@ if __name__ == '__main__':
 	
 
 
-	# https://www.javatips.net/api/Keel3.0-master/src/keel/Algorithms/Instance_Generation/Chen/ChenGenerator.java
+	# https://www.javatips.net/api/Keel3.0-master/src/keel/Algorithms/Instance_Generation/Chen/ChenGenerator.java

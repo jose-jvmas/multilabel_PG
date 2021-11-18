@@ -1,28 +1,28 @@
 # Description
 Prototype Generation for efficienct kNN classification
 
+
 # Roadmap (depending on the results obtained)
 - IbPRIA 2022 (Submission deadline: January 9, 2022)
 - Pattern Recognition Letters (no deadline)
 
+
 # PG methods implemented:
 - MRHC : Direct implementation of the work in [1]
-- MChen : Novel adaptation of the Chen method [5] to the multilabel space introduced in this work
-- MRSP3 : Novel adaptation of the RSP (version 3) PG method [2] to the multilabel space introduced in this work
+- MChen : Novel adaptation of the Chen method [2] to the multilabel space introduced in this work
+- MRSP1 : Novel adaptation of the RSP (version 1) PG method [3] to the multilabel space introduced in this work
+- MRSP2 : Novel adaptation of the RSP (version 2) PG method [3] to the multilabel space introduced in this work
+- MRSP3 : Novel adaptation of the RSP (version 3) PG method [3] to the multilabel space introduced in this work
 
-# Possible PG methods to implement:
-- MRSP1 : Novel adaptation of the RSP (version 1) PG method [2]. TO BE DONE!
-- MRSP2 : Novel adaptation of the RSP (version 2) PG method [2]. TO BE DONE!
-- MGMCA : Multilabel adaptation of the GMCA method [3]. TO BE DONE!
-- MPOC : Multilabel adaptation of the POC method [4]. TO BE DONE!
 
 # Classifiers implemented:
 - BRkNN
 - MLkNN
+- kNN with Label Powerset
+
 
 # Possible classifiers/classification methodologies to implement:
 - RAkELd
-- Label Powerset
 
 
 # Requirements (Python)
@@ -36,7 +36,5 @@ scitkit-multilearn
 
 # Refs:
 [1] Ougiaroglou, S., Filippakis, P., & Evangelidis, G. (2021, September). Prototype Generation for Multi-label Nearest Neighbours Classification. In International Conference on Hybrid Artificial Intelligence Systems (pp. 172-183). Springer, Cham.
-[2] Sánchez, J. S. (2004). High training set size reduction by space partitioning and prototype abstraction. Pattern Recognition, 37(7), 1561-1564.
-[3] Mollineda, R. A., Ferri, F. J., & Vidal, E. (2002). A merge-based condensing strategy for multiple prototype classifiers. IEEE Transactions on Systems, Man, and Cybernetics, Part B (Cybernetics), 32(5), 662-668.
-[4] Raicharoen, T., & Lursinsap, C. (2005). A divide-and-conquer approach to the pairwise opposite class-nearest neighbor (POC-NN) algorithm. Pattern recognition letters, 26(10), 1554-1567.
-[5] Chen, C. H., & Jóźwik, A. (1996). A sample set condensation algorithm for the class sensitive artificial neural network. Pattern Recognition Letters, 17(8), 819-823.
+[2] Chen, C. H., & Jóźwik, A. (1996). A sample set condensation algorithm for the class sensitive artificial neural network. Pattern Recognition Letters, 17(8), 819-823.
+[3] Sánchez, J. S. (2004). High training set size reduction by space partitioning and prototype abstraction. Pattern Recognition, 37(7), 1561-1564.
