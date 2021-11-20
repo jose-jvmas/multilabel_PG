@@ -37,7 +37,7 @@ def experiments():
 
 
 	# Reduction algorithms:
-	red_algs = ['ALL', 'MRHC', 'MRSP3', 'MChen']
+	red_algs = ['ALL', 'MRHC', 'MRSP3', 'MChen', 'MRSP1', 'MRSP2']
 
 	# Params dict:
 	red_algos_param = {
@@ -65,6 +65,7 @@ def experiments():
 	res_line = dict()
 	
 	for single_corpus in corpora:
+		
 		# Dst folder:
 		corpus_dst_path = os.path.join(results_path_root, reduction_path,single_corpus)
 		res_line['corpus'] = [single_corpus]
@@ -73,17 +74,23 @@ def experiments():
 		
 		# Loading corpus:
 		X_train, y_train, X_test, y_test = loadCorpus(single_corpus)
+		print("-"*80)
+		print("CORPUS {}".format(single_corpus))
 		for single_red in red_algs:
+			
+			print("- Reduction {}".format(single_red))
 			res_line['red_alg'] = [single_red]
 			
 			red = eval(single_red + '()')
 			
 			for red_parameter in red_algos_param[single_red]:
 				res_line['red_alg_params'] = [str(red_parameter)]
+				print("-- Reduction parameter {}".format(red_parameter))
 
 				X_dst_file = os.path.join(corpus_dst_path, 'X_' + red.getFileName(red_parameter) + '.csv')
 				y_dst_file = os.path.join(corpus_dst_path, 'y_' + red.getFileName(red_parameter) + '.csv')
 
+				
 				if os.path.isfile(X_dst_file):
 					X_red = np.array(pd.read_csv(X_dst_file, sep=',',header=None))
 					y_red = np.array(pd.read_csv(y_dst_file, sep=',',header=None))
@@ -94,15 +101,14 @@ def experiments():
 					pd.DataFrame(y_red).to_csv(y_dst_file, header=None, index=None)
 				
 				for single_classifier in classifiers:
+					print("--- Classifier {}".format(single_classifier))
 
 					res_line['cls'] = [single_classifier]
 
 					for classifier_parameters in classifiers_param[single_classifier]:
-						
-						res_line['cls_params'] = [str(classifier_parameters)]
+						print("---- Classifier param {}".format(classifier_parameters))
 
-						print("-"*80)
-						print(res_line)
+						res_line['cls_params'] = [str(classifier_parameters)]
 
 						if single_classifier == 'LabelPowerset':
 							kNN = KNeighborsClassifier(n_neighbors = classifier_parameters)
@@ -116,12 +122,13 @@ def experiments():
 						res_line['HL'] = [hamming_loss(y_test, y_pred)]
 						res_line['Size'] = [100*X_red.shape[0]/X_train.shape[0]]
 
-						print(res_line)
+						print("----- DONE!")
 
 						out_file = out_file.append(pd.DataFrame(res_line), ignore_index = False)
+						out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'), index=False)
 
-	out_file = out_file.sort_values(by=['cls', 'cls_params', 'red_alg', 'red_alg_params', 'corpus'], ascending=[True, True, True, True, True])
-	out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'))
+	# out_file = out_file.sort_values(by=['cls', 'cls_params', 'red_alg', 'red_alg_params', 'corpus'], ascending=[True, True, True, True, True])
+	# out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'))
 	out_file.groupby(['cls', 'cls_params', 'red_alg', 'red_alg_params']).mean().reset_index().to_csv(os.path.join(results_path_root, "Results_summary.csv"), index=False)
 
 	return
