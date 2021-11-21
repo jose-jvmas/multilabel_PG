@@ -19,15 +19,18 @@ class MRSP2():
 
 		sorted_in_list = sorted(in_list)
 
-		max_dist = float('-inf')
-		most_distant_duple = ()
-		for it_src_element in range(len(sorted_in_list)):
-			for it_dst_element in range(it_src_element, len(sorted_in_list)):
-				curr_dist = self.distances_dict[sorted_in_list[it_src_element]][sorted_in_list[it_dst_element]]
-				if curr_dist > max_dist:
-					most_distant_duple = (sorted_in_list[it_src_element], sorted_in_list[it_dst_element])
-					max_dist = curr_dist
-
+		if len(sorted_in_list) > 1:
+			max_dist = float('-inf')
+			most_distant_duple = ()
+			for it_src_element in range(len(sorted_in_list)):
+				for it_dst_element in range(it_src_element, len(sorted_in_list)):
+					curr_dist = self.distances_dict[sorted_in_list[it_src_element]][sorted_in_list[it_dst_element]]
+					if curr_dist > max_dist:
+						most_distant_duple = (sorted_in_list[it_src_element], sorted_in_list[it_dst_element])
+						max_dist = curr_dist
+		else:
+			most_distant_duple = (sorted_in_list[0], sorted_in_list[0])
+			max_dist = 0
 
 		return most_distant_duple[0], most_distant_duple[1]
 
@@ -158,8 +161,10 @@ class MRSP2():
 			if max_OV_Degree > 0.001:
 				Qchosen = max(OV_Degree, key=OV_Degree.get)
 			else:
-				Qchosen = random.choice(OV_Degree.keys())
-
+				randomPick = True
+				while randomPick == True:
+					Qchosen = random.choice(list(OV_Degree.keys()))
+					randomPick = False if len(C[Qchosen]) > 0 else True
 
 		self.X_out = list()
 		self.y_out = list()
@@ -174,10 +179,10 @@ class MRSP2():
 
 
 if __name__ == '__main__':
-	X_train, y_train, feature_names, label_names = load_dataset('yeast', 'train')
-	X_test, y_test, feature_names, label_names = load_dataset('yeast', 'test')
+	X_train, y_train, feature_names, label_names = load_dataset('birds', 'train')
+	X_test, y_test, feature_names, label_names = load_dataset('birds', 'test')
 
-	X_red, y_red = MRSP2().reduceSet(X_train.toarray().copy(), y_train.toarray().copy(), 10)
+	X_red, y_red = MRSP2().reduceSet(X_train.toarray().copy(), y_train.toarray().copy(), 70)
 
 
 	cls_ori = BRkNNaClassifier(k=1).fit(X_train, y_train)
