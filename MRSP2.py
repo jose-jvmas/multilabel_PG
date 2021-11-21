@@ -1,3 +1,4 @@
+import random
 import numpy as np
 from itertools import combinations
 from scipy.spatial import distance
@@ -153,7 +154,11 @@ class MRSP2():
 			prototypeIndexesQchosen_dict[bc] = self.getMostDistantPrototypes(B2) if len(B2) > 0 else ()
 
 			# Selecting partition with the maximum overlap degree:
-			Qchosen = max(OV_Degree, key=OV_Degree.get)
+			max_OV_Degree = max(OV_Degree.values())
+			if max_OV_Degree > 0.001:
+				Qchosen = max(OV_Degree, key=OV_Degree.get)
+			else:
+				Qchosen = random.choice(OV_Degree.keys())
 
 
 		self.X_out = list()

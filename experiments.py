@@ -5,6 +5,8 @@ from ALL import ALL
 from MRHC import MRHC
 from MChen import MChen
 from MRSP3 import MRSP3
+from MRSP2 import MRSP2
+from MRSP1 import MRSP1
 from sklearn.metrics import hamming_loss
 from skmultilearn.dataset import load_dataset
 from sklearn.neighbors import KNeighborsClassifier
@@ -37,13 +39,15 @@ def experiments():
 
 
 	# Reduction algorithms:
-	red_algs = ['ALL', 'MRHC', 'MRSP3', 'MChen', 'MRSP1', 'MRSP2']
+	red_algs = ['ALL', 'MRSP1', 'MRSP2', 'MRSP3', 'MRHC','MChen']
 
 	# Params dict:
 	red_algos_param = {
 		'ALL' : [1],
 		'MRHC' : [1],
 		'MRSP3' : [1],
+		'MRSP1' : [10, 30, 50, 70, 90],
+		'MRSP2' : [10, 30, 50, 70, 90],
 		'MChen' : [10, 30, 50, 70, 90],
 	}
 
