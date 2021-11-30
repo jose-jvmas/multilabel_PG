@@ -179,7 +179,7 @@ def experiments():
                     X_red, y_red = red.reduceSet(
                         X=X_train, y=y_train, params=red_parameter
                     )
-))
+
                     pd.DataFrame(X_red).to_csv(X_dst_file, header=None, index=None)
                     pd.DataFrame(y_red).to_csv(y_dst_file, header=None, index=None)
 
