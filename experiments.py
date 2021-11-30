@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import numpy as np
 import pandas as pd
 from ALL import ALL
@@ -13,15 +14,42 @@ from sklearn.neighbors import KNeighborsClassifier
 from skmultilearn.dataset import available_data_sets
 from skmultilearn.problem_transform import LabelPowerset
 from skmultilearn.adapt import BRkNNaClassifier, BRkNNbClassifier, MLkNN
+import scipy.sparse
+
+from load_mtg_jamendo_dataset import load_mtg_jamendo_dataset
 
 results_path_root = "Results"
 reduction_path = "Reduction"
 scores_path = "Scores"
 
+jamendo_root = Path("/scratch/palonso/data/mtg-jamendo-dataset-mood/embeddings/")
+
+dimension_map = {
+    "effnet": 200,
+    "musicnn": 200,
+    "openl3": 512,
+    "vggish": 128,
+    "yamnet": 1024,
+}
+
 
 def loadCorpus(corpus_name):
-    X_train, y_train, _, _ = load_dataset(corpus_name, "train")
-    X_test, y_test, _, _ = load_dataset(corpus_name, "test")
+    if "jamendo" in corpus_name:
+        embedding_type = corpus_name.split("-")[-1]
+        jamendo_path = jamendo_root / f"embeddings-{embedding_type}"
+        dimensions = dimension_map[embedding_type]
+
+        X, y = load_mtg_jamendo_dataset(
+            jamendo_path,
+            dimensions,
+            merge_validation=False,  # For now discard the validation set, so that we can fairly compare to the Challenge models, but we could leverage that data for training.
+        )
+
+        return X["train"], y["train"], X["test"], y["test"]
+
+    else:
+        X_train, y_train, _, _ = load_dataset(corpus_name, "train")
+        X_test, y_test, _, _ = load_dataset(corpus_name, "test")
 
     return X_train, y_train, X_test, y_test
 
@@ -62,6 +90,13 @@ def experiments():
         "rcv1subset4",
         "scene",
         "yeast",
+        # MTG-Jamendo Mood and Theme Recognition tasks -> https://multimediaeval.github.io/2021-Emotion-and-Theme-Recognition-in-Music-Task/
+        # Train version based on different embedding types
+        "jamendo-effnet",
+        "jamendo-musicnn",
+        "jamendo-openl3",
+        "jamendo-vggish",
+        "jamendo-yamnet",
     ]
 
     # Reduction algorithms:
@@ -136,10 +171,15 @@ def experiments():
                     X_red = np.array(pd.read_csv(X_dst_file, sep=",", header=None))
                     y_red = np.array(pd.read_csv(y_dst_file, sep=",", header=None))
                 else:
-                    X_red, y_red = red.reduceSet(
-                        X=X_train.toarray(), y=y_train.toarray(), params=red_parameter
-                    )
+                    if type(X_train) is scipy.sparse:
+                        X_train = X_train.toarray()
+                    if type(y_train) is scipy.sparse:
+                        y_train = y_train.toarray()
 
+                    X_red, y_red = red.reduceSet(
+                        X=X_train, y=y_train, params=red_parameter
+                    )
+))
                     pd.DataFrame(X_red).to_csv(X_dst_file, header=None, index=None)
                     pd.DataFrame(y_red).to_csv(y_dst_file, header=None, index=None)
 
