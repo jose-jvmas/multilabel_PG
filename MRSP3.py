@@ -13,20 +13,6 @@ class MRSP3():
 	def getFileName(*params):
 		return 'MRSP3'
 
-
-	# def getMostDistantPrototypes(self, in_set):
-
-	# 	max_dist = float('-inf')
-	# 	most_distant_duple = (0, 0)
-	# 	for it_row in range(in_set.shape[0]):
-	# 		for it_column in range(it_row, in_set.shape[0]):
-	# 			curr_dist = distance.euclidean(in_set[it_row], in_set[it_column])
-	# 			if curr_dist > max_dist:
-	# 				most_distant_duple = (it_row, it_column)
-	# 				max_dist = curr_dist
-	# 	return most_distant_duple[0], most_distant_duple[1]
-
-
 	def getMostDistantPrototypes(self, in_set):
 		duples = list(combinations(list(range(in_set.shape[0])), 2))
 

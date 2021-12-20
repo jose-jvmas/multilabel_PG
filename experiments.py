@@ -131,15 +131,12 @@ def experiments():
 						out_file = out_file.append(pd.DataFrame(res_line), ignore_index = False)
 						out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'), index=False)
 
-	# out_file = out_file.sort_values(by=['cls', 'cls_params', 'red_alg', 'red_alg_params', 'corpus'], ascending=[True, True, True, True, True])
-	# out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'))
 	out_file.groupby(['cls', 'cls_params', 'red_alg', 'red_alg_params']).mean().reset_index().to_csv(os.path.join(results_path_root, "Results_summary.csv"), index=False)
 
 	return
 
 
 def getDataStats():
-	# print(set([x[0] for x in available_data_sets().keys()]))
 	print("-"*80)
 	print("Name, Train size, Test size, Features, Possible tags, Cardinality, Density")
 	for single_key in sorted(list(set([u[0] for u in available_data_sets().keys()]))):
