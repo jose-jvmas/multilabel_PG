@@ -3,14 +3,14 @@ Multilabel Prototype Generation for Data Reduction in k-Nearest Neighbour classi
 
 
 # Authors:
-Jose J. Valero-Mas [A1] , Pablo Alonso-Jiménez [A2], Antonio Javier Gallego [A1], Xavier Serra [A2]
+Jose J. Valero-Mas [I1] , Pablo Alonso-Jiménez [I2], Antonio Javier Gallego [I1], Xavier Serra [I2]
 
-[A1] University Institute for Computer Research, University of Alicante, Spain
-[A2] Music Technology Group, Universitat Pompeu Fabra, Spain
+[I1] University Institute for Computer Research, University of Alicante, Spain
+[I2] Music Technology Group, Universitat Pompeu Fabra, Spain
 
 
 # Description:
-Supplementary material for the submission to Pattern Recognition Letters for reproducible research and further development and exploitation of the proposed methods 
+Supplementary material for the submission to Pattern Recognition for reproducible research and further development and exploitation of the proposed methods 
 
 
 # Proposed Multilabel Prototype Generation methods:
@@ -27,7 +27,11 @@ Supplementary material for the submission to Pattern Recognition Letters for rep
 - Multilabel kNN (MLkNN)
 
 
-# Usage (reproduction of the results in the original submission):
+# Corpora considered:
+- 12 benchmarking corpora with three levels of label noise
+
+
+# Usage (reproduction of the results in the manuscript):
 1) Install dependecies:
 $ pip install -r requirements.txt
 

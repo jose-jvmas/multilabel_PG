@@ -1,4 +1,6 @@
 import os
+import random
+from re import L
 import numpy as np
 import pandas as pd
 from ALL import ALL
@@ -7,6 +9,7 @@ from MChen import MChen
 from MRSP3 import MRSP3
 from MRSP2 import MRSP2
 from MRSP1 import MRSP1
+from scipy.sparse import issparse
 from sklearn.metrics import hamming_loss
 from skmultilearn.dataset import load_dataset
 from sklearn.neighbors import KNeighborsClassifier
@@ -26,6 +29,25 @@ def loadCorpus(corpus_name):
 	return X_train, y_train, X_test, y_test
 
 
+
+def create_label_noise(y_train, noise_perc):
+	# Number of elements (even number):
+	number_of_elements = 2*round(noise_perc*y_train.shape[0]/(200))
+
+	# Selecting elements:
+	list_elements = random.sample(list(range(y_train.shape[0])), k = number_of_elements)
+
+	# Creating output vector:
+	y_out = y_train.todense().copy() if issparse(y_train) else y_train.copy()
+	for it in range(int(len(list_elements)/2)):
+		temp = y_out[list_elements[it]].copy()
+		y_out[list_elements[it]] = y_out[list_elements[len(list_elements)-1-it]].copy()
+		y_out[list_elements[len(list_elements)-1-it]] = temp.copy()
+	
+
+	return y_out
+
+
 def experiments():
 
 	# Reduction path:
@@ -36,10 +58,12 @@ def experiments():
 	corpora = ['bibtex', 'birds', 'Corel5k', 'emotions', 'enron', 'genbase', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'scene', 'yeast']
 	corpora = ['bibtex', 'birds', 'Corel5k', 'emotions', 'genbase', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'scene', 'yeast']
 
+	# Label noise:
+	label_noise_percentage = [0, 20, 40]
 
 
 	# Reduction algorithms:
-	red_algs = ['ALL', 'MRSP1', 'MRSP2', 'MRSP3', 'MRHC','MChen']
+	red_algs = ['ALL', 'MRSP1', 'MRSP2', 'MRSP3', 'MRHC', 'MChen']
 
 	# Params dict:
 	red_algos_param = {
@@ -52,7 +76,7 @@ def experiments():
 	}
 
 	# Classifiers:
-	classifiers = ['LabelPowerset', 'MLkNN', 'BRkNNaClassifier', 'BRkNNbClassifier']
+	classifiers = ['LabelPowerset', 'BRkNNaClassifier', 'MLkNN']#, 'BRkNNbClassifier']
 
 	# Classifier params:
 	classifiers_param = {
@@ -63,7 +87,7 @@ def experiments():
 	}
 
 
-	out_file = pd.DataFrame(columns=['cls', 'cls_params', 'red_alg', 'red_alg_params', 'corpus', 'HL', 'Size'])
+	out_file = pd.DataFrame(columns=['cls', 'cls_params', 'red_alg', 'red_alg_params', 'corpus', 'noise', 'HL', 'Size'])
 
 
 	res_line = dict()
@@ -80,58 +104,68 @@ def experiments():
 		X_train, y_train, X_test, y_test = loadCorpus(single_corpus)
 		print("-"*80)
 		print("CORPUS {}".format(single_corpus))
-		for single_red in red_algs:
-			
-			print("- Reduction {}".format(single_red))
-			res_line['red_alg'] = [single_red]
-			
-			red = eval(single_red + '()')
-			
-			for red_parameter in red_algos_param[single_red]:
-				res_line['red_alg_params'] = [str(red_parameter)]
-				print("-- Reduction parameter {}".format(red_parameter))
 
-				X_dst_file = os.path.join(corpus_dst_path, 'X_' + red.getFileName(red_parameter) + '.csv')
-				y_dst_file = os.path.join(corpus_dst_path, 'y_' + red.getFileName(red_parameter) + '.csv')
+		for noise_percentage in label_noise_percentage:
 
+			print("- Noise {}%".format(noise_percentage))
+			res_line['noise'] = [noise_percentage]
+
+			y_train = create_label_noise(y_train, noise_percentage)
+
+			for single_red in red_algs:
 				
-				if os.path.isfile(X_dst_file):
-					X_red = np.array(pd.read_csv(X_dst_file, sep=',',header=None))
-					y_red = np.array(pd.read_csv(y_dst_file, sep=',',header=None))
-				else:
-					X_red, y_red = red.reduceSet(X = X_train.toarray(), y = y_train.toarray(), params = red_parameter)
-
-					pd.DataFrame(X_red).to_csv(X_dst_file, header=None, index=None)
-					pd.DataFrame(y_red).to_csv(y_dst_file, header=None, index=None)
+				print("-- Reduction {}".format(single_red))
+				res_line['red_alg'] = [single_red]
 				
-				for single_classifier in classifiers:
-					print("--- Classifier {}".format(single_classifier))
+				red = eval(single_red + '()')
+				
+				for red_parameter in red_algos_param[single_red]:
+					res_line['red_alg_params'] = [str(red_parameter)]
+					print("--- Reduction parameter {}".format(red_parameter))
 
-					res_line['cls'] = [single_classifier]
+					X_dst_file = os.path.join(corpus_dst_path, 'X_' + red.getFileName(red_parameter) + '_N' + str(noise_percentage) + '.csv')
+					y_dst_file = os.path.join(corpus_dst_path, 'y_' + red.getFileName(red_parameter) + '_N' + str(noise_percentage) + '.csv')
 
-					for classifier_parameters in classifiers_param[single_classifier]:
-						print("---- Classifier param {}".format(classifier_parameters))
+					
+					if os.path.isfile(X_dst_file) and os.path.isfile(y_dst_file):
+						X_red = np.array(pd.read_csv(X_dst_file, sep=',',header=None))
+						y_red = np.array(pd.read_csv(y_dst_file, sep=',',header=None))
+					else:
+						X_red, y_red = red.reduceSet(X = X_train.toarray(), y = y_train, params = red_parameter)
 
-						res_line['cls_params'] = [str(classifier_parameters)]
+						pd.DataFrame(X_red).to_csv(X_dst_file, header=None, index=None)
+						pd.DataFrame(y_red).to_csv(y_dst_file, header=None, index=None)
+					
+					for single_classifier in classifiers:
+						print("---- Classifier {}".format(single_classifier))
 
-						if single_classifier == 'LabelPowerset':
-							kNN = KNeighborsClassifier(n_neighbors = classifier_parameters)
-							cls = LabelPowerset(classifier = kNN, require_dense=[False, False])
-						else:
-							cls = eval(single_classifier + '(k=' + str(classifier_parameters) + ')')
-						
-						cls.fit(X_red, y_red)
-						y_pred = cls.predict(X_test)
-						
-						res_line['HL'] = [hamming_loss(y_test, y_pred)]
-						res_line['Size'] = [100*X_red.shape[0]/X_train.shape[0]]
+						res_line['cls'] = [single_classifier]
 
-						print("----- DONE!")
+						for classifier_parameters in classifiers_param[single_classifier]:
+							print("----- Classifier param {}".format(classifier_parameters))
 
-						out_file = out_file.append(pd.DataFrame(res_line), ignore_index = False)
-						out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'), index=False)
+							res_line['cls_params'] = [str(classifier_parameters)]
 
-	out_file.groupby(['cls', 'cls_params', 'red_alg', 'red_alg_params']).mean().reset_index().to_csv(os.path.join(results_path_root, "Results_summary.csv"), index=False)
+							if single_classifier == 'LabelPowerset':
+								kNN = KNeighborsClassifier(n_neighbors = classifier_parameters)
+								cls = LabelPowerset(classifier = kNN, require_dense=[False, False])
+							else:
+								cls = eval(single_classifier + '(k=' + str(classifier_parameters) + ')')
+							
+							cls.fit(X_red, y_red)
+							y_pred = cls.predict(X_test)
+							
+							res_line['HL'] = [hamming_loss(y_test, y_pred)]
+							res_line['Size'] = [100*X_red.shape[0]/X_train.shape[0]]
+
+							print("------ DONE!")
+
+							out_file = out_file.append(pd.DataFrame(res_line), ignore_index = False)
+							out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'), index=False)
+
+	# out_file = out_file.sort_values(by=['cls', 'cls_params', 'red_alg', 'red_alg_params', 'corpus'], ascending=[True, True, True, True, True])
+	# out_file.to_csv(os.path.join(results_path_root, 'Results_plain.csv'))
+	out_file.groupby(['cls', 'cls_params', 'red_alg', 'red_alg_params', 'noise']).mean().reset_index().to_csv(os.path.join(results_path_root, "Results_summary.csv"), index=False)
 
 	return
 
@@ -153,6 +187,7 @@ def getDataStats():
 
 
 if __name__ == '__main__':
+	random.seed(123)
 
 	"""Corpora stats"""
 	# getDataStats()
@@ -164,4 +199,3 @@ if __name__ == '__main__':
 	
 
 
-	# https://www.javatips.net/api/Keel3.0-master/src/keel/Algorithms/Instance_Generation/Chen/ChenGenerator.java
