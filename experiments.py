@@ -57,6 +57,7 @@ def experiments():
 	# Selected corpora:
 	corpora = ['bibtex', 'birds', 'Corel5k', 'emotions', 'enron', 'genbase', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'scene', 'yeast']
 	corpora = ['bibtex', 'birds', 'Corel5k', 'emotions', 'genbase', 'medical', 'rcv1subset1', 'rcv1subset2', 'rcv1subset3', 'rcv1subset4', 'scene', 'yeast']
+	corpora = ['bibtex', 'birds', 'emotions', 'genbase', 'medical', 'scene', 'yeast']
 
 
 	# Label noise:
@@ -124,7 +125,7 @@ def experiments():
 					res_line['red_alg_params'] = [str(red_parameter)]
 					print("--- Reduction parameter {}".format(red_parameter))
 
-					X_dst_file = os.path.join(corpus_dst_path, 'X_' + red.getFileName(red_parameter) + '.csv')
+					X_dst_file = os.path.join(corpus_dst_path, 'X_' + red.getFileName(red_parameter) + '_N' + str(noise_percentage) + '.csv')
 					y_dst_file = os.path.join(corpus_dst_path, 'y_' + red.getFileName(red_parameter) + '_N' + str(noise_percentage) + '.csv')
 
 					
@@ -201,4 +202,3 @@ if __name__ == '__main__':
 	
 
 
-	# https://www.javatips.net/api/Keel3.0-master/src/keel/Algorithms/Instance_Generation/Chen/ChenGenerator.java
