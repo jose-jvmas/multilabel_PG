@@ -35,9 +35,11 @@ Supplementary material for the submission to Pattern Recognition for reproducibl
 1) Install dependecies:
 $ pip install -r requirements.txt
 
-2) Start experimentation:
+2) Run experimentation:
+- General experiments:
 $ python experiments.py
-
+- Time execution 
+$ python time_exection_benchmark.py
 
 # References:
 [1] Ougiaroglou, S., Filippakis, P., & Evangelidis, G. (2021, September). Prototype Generation for Multi-label Nearest Neighbours Classification. In International Conference on Hybrid Artificial Intelligence Systems (pp. 172-183). Springer, Cham.
