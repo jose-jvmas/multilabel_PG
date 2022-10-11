@@ -1,7 +1,7 @@
-arff
-numpy
-scipy
-pandas
-sklearn
-requests
-scikit-multilearn
+arff==0.9
+numpy==1.23.3
+scipy==1.9.2
+pandas== 1.5.0
+scikit-learn==0.24.2
+requests==2.28.1
+scikit-multilearn==0.2.0
